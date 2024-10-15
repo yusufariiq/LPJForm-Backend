@@ -12,7 +12,7 @@ class LPJController {
                     console.error('Error sending file:', err);
                     res.status(500).send('Error sending file');
                 }
-                // Clean up the generated file after sending
+    
                 fs.unlink(outputPath, (unlinkErr) => {
                     if (unlinkErr) {
                         console.error('Error deleting temporary file:', unlinkErr);

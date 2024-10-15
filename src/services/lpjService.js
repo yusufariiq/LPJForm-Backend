@@ -92,8 +92,11 @@ class LPJService {
             const pdfBuffer = await libreConvert(filledContent, '.pdf', undefined);
             const outputPath = path.join(DESKTOP_DIR, `LPJ_PUM_Output_${uuidv4()}.pdf`);
             
-            await fs.promises.writeFile(outputPath, pdfBuffer);
+            await fsPromises.writeFile(outputPath, pdfBuffer);
             await fsPromises.unlink(qrCodeImagePath);
+
+            const savedLpj = await lpjRepository.saveLpj(formData.no_request, formData.tgl_lpj, outputPath);
+            console.log('Saved to database with id:', savedLpj.id);
 
             return outputPath;
         } catch (error) {
