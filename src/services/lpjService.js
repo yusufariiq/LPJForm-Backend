@@ -76,7 +76,7 @@ class LPJService {
                 tgl_lpj: new Date(formData.tgl_lpj).toLocaleDateString('id-ID'),
                 qrcode: qrCodeImagePath,
                 rincianItems: rincianItems.map((item) => ({
-                    no: item.id, // Changed from item.no to item.id to match frontend data structure
+                    no: item.no,
                     deskripsi_pum: item.deskripsi_pum,
                     jumlah_pum: this.formatCurrency(Number(item.jumlah_pum)),
                     deskripsi_lpj: item.deskripsi_lpj,
@@ -106,13 +106,13 @@ class LPJService {
         return await lpjRepository.getLpjHistory();
     }
 
-    async downloadLPJ(id) {
-        const lpj = await lpjRepository.getLpjById(id);
-        if (!lpj) {
-            throw new Error('File not found');
-        }
-        return lpj.file_path;
-    }
+    // async downloadLPJ(id) {
+    //     const lpj = await lpjRepository.getLpjById(id);
+    //     if (!lpj) {
+    //         throw new Error('File not found');
+    //     }
+    //     return lpj.file_path;
+    // }
 }
 
 module.exports = new LPJService();
