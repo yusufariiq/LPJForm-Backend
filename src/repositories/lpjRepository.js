@@ -16,13 +16,13 @@ class LpjRepository {
     }
   
     async getLpjHistory() {
-      const query = 'SELECT * FROM ${LPJ_TABLE_NAME} ORDER BY created_at DESC';
+      const query = `SELECT * FROM ${LPJ_TABLE_NAME} ORDER BY created_at DESC`;
       const result = await pool.query(query);
       return result.rows;
     }
   
     async getLpjById(id) {
-      const query = 'SELECT file_path FROM ${LPJ_TABLE_NAME} WHERE id = $1';
+      const query = `SELECT file_path FROM ${LPJ_TABLE_NAME} WHERE id = $1`;
       const result = await pool.query(query, [id]);
       return result.rows[0];
     }
