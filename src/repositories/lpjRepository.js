@@ -4,13 +4,13 @@ const pool = require('../config/db');
 const LPJ_TABLE_NAME = process.env.PG_TABLE_NAME
 
 class LpjRepository {
-    async saveLpj(noRequest, tglLpj, filePath) {
+    async saveLpj(noRequest, tgl_lpj, filename) {
       const query = `
         INSERT INTO ${LPJ_TABLE_NAME} (no_request, tgl_lpj, file_path)
         VALUES ($1, $2, $3)
         RETURNING id
       `;
-      const values = [noRequest, tglLpj, filePath];
+      const values = [noRequest, tgl_lpj, filename];
       const result = await pool.query(query, values);
       return result.rows[0];
     }

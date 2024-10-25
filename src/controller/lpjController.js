@@ -35,30 +35,65 @@ class LPJController {
         }
     }
 
-    // async downloadLPJ(req, res) {
+    // async getAttachment(req, res) {
     //     try {
-    //         const filePath = await LPJService.downloadLPJ(req.params.id);
-
-    //         if(!fs.existsSync(filePath)) {
-    //             console.error(`File ${filePath} does not exist`);
-    //             return res.status(404).send('File not found');
+    //         const filename = req.params.filename;
+            
+    //         if(!filename) {
+    //             console.log('No filename provided');
+    //             return res.status(400).json({error: 'No filename provided'})
     //         }
 
-    //         const fileName = path.basename(filePath);
-    //         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    //         res.setHeader('Content-Type', 'application/pdf');
+    //         const filepath = path.join(uploadDir, filename);
 
-    //         const fileStream = fs.createReadStream(filePath);
-    //         fileStream.on('error', (error) => {
-    //         console.error(`Error reading file: ${error}`);
-    //         res.status(500).send('Error reading file from server');
-    //         });
-    //         fileStream.pipe(res);
+    //         try {
+    //             await fs.access(filepath);
+    //             const ext = path.extname(filename).toLowerCase();
+    //             const contentType = {
+    //                 '.png': 'image/png',
+    //                 '.jpg': 'image/jpeg',
+    //                 '.jpeg': 'image/jpeg',
+    //                 '.pdf': 'application/pdf'
+    //             }[ext] || 'application/octet-stream';
+                
+    //             res.setHeader('Content-Type', contentType);
+    //             res.setHeader('Cache-Control', 'no-cache');
+    //             res.setHeader('Content-Disposition', 'inline');
+
+    //             const fileStream = fsSync.createReadStream(filepath);
+    //             fileStream.pipe(res);
+    //             // res.sendFile(filepath);
+    //         } catch (error) {
+    //             console.log('File not found: ', filepath);
+    //             return res.status(404).json({ 
+    //                 error: 'File not found',
+    //                 details: {
+    //                     requestedFile: filename,
+    //                     attemptedPath: filepath
+    //                 }
+    //             });
+    //         }
     //     } catch (error) {
-    //         console.error('Error during file download:', error);
-    //         res.status(500).send('Server error during the file download');
+    //         console.error('Error serving attachment:', error);
+    //         res.status(500).json({ error: 'Internal server error' });
     //     }
     // }
+
+    async downloadLPJ(req, res) {
+        try {
+            const { id } = req.params;
+            const fileInfo = await lpjService.downloadLPJ(id);
+            
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${fileInfo.fileName}"`);
+            
+            // Send the file
+            res.sendFile(fileInfo.filePath);
+        } catch (error) {
+            console.error('Error downloading file:', error);
+            res.status(404).send('File not found');
+        }
+    }
 }
 
 module.exports = new LPJController();
