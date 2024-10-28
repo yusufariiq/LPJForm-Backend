@@ -4,7 +4,6 @@ const path = require('path')
 const LPJService = require('../services/lpjService');
 
 const uploadDir = path.join(__dirname, '..', 'temp');
-console.log(uploadDir)
 
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
