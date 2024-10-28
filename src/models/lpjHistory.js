@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS lpj_history (
     id SERIAL PRIMARY KEY,
     no_request VARCHAR(255) NOT NULL,
     tgl_lpj DATE NOT NULL,
-    file_path VARCHAR(255) NOT NULL,
+    filename VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `

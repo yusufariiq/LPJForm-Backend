@@ -6,6 +6,7 @@ const upload = multer();
 
 router.post('/generate-lpj', upload.none(), lpjController.generateLPJ);
 router.get('/history', lpjController.getLPJHistory);
-router.get('/history/download/:id', lpjController.downloadLPJ);
+
+router.get('/history/:filename', lpjController.getLPJFile);
 
 module.exports = router;

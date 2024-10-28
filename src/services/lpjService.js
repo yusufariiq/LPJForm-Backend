@@ -12,10 +12,10 @@ const lpjRepository = require('../repositories/lpjRepository');
 const libreConvert = util.promisify(libre.convert);
 
 const TEMPLATE_PATH = path.resolve(process.env.TEMPLATE_PATH);
-const UPLOAD_DIR = path.join(process.env.DESKTOP_DIR);
+const uploadDir = path.join(__dirname, '..', 'temp');
 
-if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 class LPJService {
@@ -34,7 +34,7 @@ class LPJService {
 
     async generateQRCodeData(data) {
         const qrCodeFilename = `qrcode_${uuidv4()}.png`;
-        const qrCodePath = path.join(UPLOAD_DIR, qrCodeFilename);
+        const qrCodePath = path.join(uploadDir, qrCodeFilename);
         await QRCode.toFile(qrCodePath, data, {
             errorCorrectionLevel: 'H',
             width: 150,
@@ -46,7 +46,6 @@ class LPJService {
     async generateLPJ(formData) {
         try {
             const pdfFilename = `LPJ_PUM_${Date.now()}-${Math.round(Math.random() * 1E9)}.pdf`;
-
             const qrCodeImagePath = await this.generateQRCodeData(formData.no_request);
 
             const content = await fsPromises.readFile(TEMPLATE_PATH, 'binary');
@@ -98,18 +97,23 @@ class LPJService {
             const filledContent = doc.getZip().generate({ type: 'nodebuffer' });
             const pdfBuffer = await libreConvert(filledContent, '.pdf', undefined);
 
-            const outputPath = path.join(UPLOAD_DIR, pdfFilename);
+            const outputPath = path.join(uploadDir, pdfFilename);
             await fsPromises.writeFile(outputPath, pdfBuffer);
             
             await fsPromises.unlink(qrCodeImagePath);
 
-            const savedLpj = await lpjRepository.saveLpj(formData.no_request, formData.tgl_lpj, pdfFilename);
+            const savedLpj = await lpjRepository.saveLpj(
+                formData.no_request,
+                formData.tgl_lpj,
+                pdfFilename
+            );
             console.log('Saved to database with id:', savedLpj.id);
 
             return {
                 id: savedLpj.id,
                 filename: pdfFilename,
-                filePath: outputPath
+                filePath: outputPath,
+                qrCodePath: qrCodeImagePath
             };
         } catch (error) {
             console.error('Error in generateLPJ:', error);
@@ -118,41 +122,18 @@ class LPJService {
     }
 
     async getLPJHistory() {
-        const history =  await lpjRepository.getLpjHistory();
-
+        const history = await lpjRepository.getLPJHistory();
         return history.map(item => ({
-            ...item,
-            file_path: path.join(UPLOAD_DIR, item.file_path)
+            id: item.id,
+            no_request: item.no_request,
+            tgl_lpj: item.tgl_lpj,
+            filename: item.filename,
+            created_at: item.created_at
         }));
     }
 
-    async getLPJHistory() {
-        const history =  await lpjRepository.getLpjHistory();
-
-        return history.map(item => ({
-            ...item,
-            filePath: path.join(UPLOAD_DIR, item.file_path),
-            fileName: item.file_path
-        }));
-    }
-
-    
-    async downloadLPJ(id) {
-        const lpj = await lpjRepository.getLpjById(id);
-        if (!lpj) {
-            throw new Error('File not found');
-        }
-
-        const filePath = path.join(UPLOAD_DIR, lpj.file_path);
-        
-        if (!fs.existsSync(filePath)) {
-            throw new Error('File not found in storage');
-        }
-
-        return {
-            filePath,
-            fileName: lpj.file_path
-        };
+    async getLPJById(id) {
+        return await lpjRepository.getLPJById(id);
     }
 }
 
