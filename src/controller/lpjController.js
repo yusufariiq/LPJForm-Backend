@@ -21,14 +21,6 @@ class LPJController {
                     console.error('Error sending file:', err);
                     res.status(500).send('Error sending file');
                 }
-    
-                if (result.qrCodePath) {
-                    fs.unlink(result.qrCodePath, (unlinkErr) => {
-                        if (unlinkErr) {
-                            console.error('Error deleting temporary QR code file:', unlinkErr);
-                        }
-                    });
-                }
             });
         } catch (error) {
             console.error('Error generating LPJ:', error);
